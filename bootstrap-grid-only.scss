@@ -1,0 +1,236 @@
+@use "sass:map";
+@use "sass:meta";
+@use "sass:math";
+
+@import "./scss/functions";
+
+@import "./scss/variables";
+
+@import "./scss/maps";
+@import "./scss/mixins";
+
+@import "./scss/root";
+
+$utilities: () !default;
+$utilities: map-merge(
+    (
+        "padding": (
+            responsive: true,
+            property: padding,
+            class: p,
+            values: $spacers
+        ),
+        "background-color": (
+            property: background-color,
+            class: bg,
+            local-vars: (
+                "bg-opacity": 1
+            ),
+            values: map-merge(
+                $utilities-bg-colors,
+                (
+                "transparent": transparent
+                )
+            )
+        ),
+        "border": (
+            property: border,
+            values: (
+                null: var(--#{$prefix}border-width) var(--#{$prefix}border-style) var(--#{$prefix}border-color),
+                0: 0,
+            )
+        ),
+        // scss-docs-start utils-display
+    "display": (
+        responsive: true,
+        print: true,
+        property: display,
+        class: d,
+        values: inline inline-block block grid table table-row table-cell flex inline-flex none
+      ),
+      // scss-docs-end utils-display
+        // Flex utilities
+        // scss-docs-start utils-flex
+        "flex": (
+            responsive: true,
+            property: flex,
+            values: (fill: 1 1 auto)
+        ),
+        "flex-direction": (
+            responsive: true,
+            property: flex-direction,
+            class: flex,
+            values: row column row-reverse column-reverse
+        ),
+        "flex-grow": (
+            responsive: true,
+            property: flex-grow,
+            class: flex,
+            values: (
+            grow-0: 0,
+            grow-1: 1,
+            )
+        ),
+        "flex-shrink": (
+            responsive: true,
+            property: flex-shrink,
+            class: flex,
+            values: (
+            shrink-0: 0,
+            shrink-1: 1,
+            )
+        ),
+        "flex-wrap": (
+            responsive: true,
+            property: flex-wrap,
+            class: flex,
+            values: wrap nowrap wrap-reverse
+        ),
+        "justify-content": (
+            responsive: true,
+            property: justify-content,
+            values: (
+            start: flex-start,
+            end: flex-end,
+            center: center,
+            between: space-between,
+            around: space-around,
+            evenly: space-evenly,
+            )
+        ),
+        "align-items": (
+            responsive: true,
+            property: align-items,
+            values: (
+            start: flex-start,
+            end: flex-end,
+            center: center,
+            baseline: baseline,
+            stretch: stretch,
+            )
+        ),
+        "align-content": (
+            responsive: true,
+            property: align-content,
+            values: (
+            start: flex-start,
+            end: flex-end,
+            center: center,
+            between: space-between,
+            around: space-around,
+            stretch: stretch,
+            )
+        ),
+        "align-self": (
+            responsive: true,
+            property: align-self,
+            values: (
+            auto: auto,
+            start: flex-start,
+            end: flex-end,
+            center: center,
+            baseline: baseline,
+            stretch: stretch,
+            )
+        ),
+        "order": (
+            responsive: true,
+            property: order,
+            values: (
+            first: -1,
+            0: 0,
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4,
+            5: 5,
+            last: 6,
+            ),
+        )
+        // scss-docs-end utils-flex
+        /*
+        "gap": (
+            responsive: true,
+            property: gap,
+            class: gap,
+            values: $spacers
+          )
+          */
+    ),
+    $utilities
+);
+
+@import "./scss/utilities/api";
+
+
+$gutters: $spacers !default;
+
+@import "./scss/images";
+@import "./scss/grid";
+
+.container {
+    max-width: 700px;
+    margin: 50px;
+}
+
+.c-item {
+    @extend .d-flex;
+    @extend .flex-wrap;
+    @extend .border;
+    @extend .bg-light;
+    &__small-thumbnail {
+        @extend .col-12;
+        @extend .col-md-3; // takes 25% width
+        img {
+            @include img-fluid;
+        }
+    }
+    &__description {
+        @extend .col-md;
+        @extend .col-12;
+        @extend .p-3; // some padding to get text some space from the border
+    }
+}
+
+
+@mixin flex($element
+            // container parameters
+            ,$wrap: null
+            ) {
+    @if $element == "container" {
+        display: flex;
+        flex-wrap: $wrap;
+    }
+    @if $element == "item" {
+        flex: 0 0 auto;
+    }
+}
+
+.test-container {
+    @include flex(container, $wrap: wrap);
+}
+
+.test-item {
+    @include flex(item);
+}
+
+@mixin construct-flex($container: null, $item: null) {
+    @if $container {
+        display: flex;
+        @each $arg in $container {
+            @if $arg == "wrap" {
+                flex-wrap: wrap;
+            }
+            @if type-of($arg) == number and unit($arg) == "" {
+                > * {
+                    width: math.div(100%,$arg);
+                }
+            }
+        }
+    }
+}
+
+
+.text-mixin {
+    @include construct-flex($container: (4, "wrap"));
+}
